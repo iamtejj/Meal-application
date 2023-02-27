@@ -1,40 +1,48 @@
-import React, { createContext, useContext ,useEffect, useState} from 'react';
-import axios, {isCancel, AxiosError} from 'axios';
-import Meals from './components/Meals';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import axios, { isCancel, AxiosError } from "axios";
+import Meals from "./components/Meals";
 
-const Appcontext = createContext('')
+const Appcontext = createContext("");
 
-const allMealUrl = 'https://www.themealdb.com/api/json/v1/1/search.php?s=a';
-const randomeMealUrl = 'https://www.themealdb.com/api/json/v1/1/randomselection.php'
+const allMealUrl = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+const randomeMealUrl =
+  "https://www.themealdb.com/api/json/v1/1/random.php";
 
-
-
-const AppProvider = ({children}) =>{
-    const [meals,setMeals] = useState([]);
-    const fetchMeals = async (url) =>{
-        try {
-            const {data} = await axios.get(url);
-            setMeals(data.meals)
-               
-          } catch (error) {
-            console.error(error);
-          }
-        
+const AppProvider = ({ children }) => {
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm,setSearchTerm] = useState('')
+  const fetchMeals = async (url) => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(url);
+      if (data.meals) {
+        setMeals(data.meals);
+      } else {
+        setMeals([]);
+      }
+    } catch (error) {
+      console.error(error);
     }
+    setLoading(false);
+  };
 
-    useEffect(()=>{
-        fetchMeals(allMealUrl)
-         
-    },[])
-    return(
-            <Appcontext.Provider value={{meals}}>
-                {children}
-            </Appcontext.Provider>
-        )
-}
+  const fetchRandomMeal =()=>{
+    fetchMeals(randomeMealUrl)
+  }
 
-const useGlobalContext = () =>{
-    return useContext(Appcontext)
-}
+  useEffect(() => {
+    fetchMeals(`${allMealUrl}${searchTerm}`);
+  }, [searchTerm]);
+  return (
+    <Appcontext.Provider value={{ meals, loading ,setSearchTerm ,fetchRandomMeal}}>
+      {children}
+    </Appcontext.Provider>
+  );
+};
 
-export {AppProvider, Appcontext ,useGlobalContext}
+const useGlobalContext = () => {
+  return useContext(Appcontext);
+};
+
+export { AppProvider, Appcontext, useGlobalContext };
