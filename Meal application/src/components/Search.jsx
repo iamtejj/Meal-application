@@ -7,13 +7,17 @@ const Search = () => {
   const {setSearchTerm ,fetchRandomMeal} = useGlobalContext()
   const handleChange = (event) =>{
     setText(event.target.value)
-  }
+  } 
   const handleSubmit = (event) =>{
     event.preventDefault();
-    if(text !='' || text != undefined){
+    if(text){
       setSearchTerm(text)
     }
-    
+  }
+  const handleRandomMela = () =>{
+    setSearchTerm('')
+    setText('')
+    fetchRandomMeal()
   }
   return <header className="search-container">
     <form onSubmit={handleSubmit}>
@@ -21,7 +25,7 @@ const Search = () => {
       <button className="btn" type="submit" >Search</button>
       <button className="btn btn-hipster" onClick={(e)=>{
         e.preventDefault(); 
-        fetchRandomMeal()
+        handleRandomMela()
         }
         } type="submit">Surprice me!</button>
     </form>
