@@ -8,17 +8,35 @@ const allMealUrl = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
 const randomeMealUrl =
   "https://www.themealdb.com/api/json/v1/1/random.php";
 
+const getFavoritesFromLocalStorage = () => {
+  let favorites = localStorage.getItem('favorites')
+  let localFavorites;
+  if(favorites){
+    localFavorites = JSON.parse(localStorage.getItem('favorites'))
+  }
+  else{
+    localFavorites =[]
+  }
+  return localFavorites
+}  
+
 const AppProvider = ({ children }) => {
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm,setSearchTerm] = useState('');
   const [showModal,setShowModal] = useState(false);
   const [selectedMeal,setSelectedMeal] = useState(null);
-  const [favourites,setFavourites] = useState([])
+  const [favourites,setFavourites] = useState(getFavoritesFromLocalStorage())
 
   const selecteMeal = (idMeal,favouriteMeal) =>{
     let meal;
-    meal = meals.find((meal)=>{ return meal.idMeal == idMeal });
+    if(favouriteMeal){
+      meal = favourites.find((meal)=>{ return meal.idMeal == idMeal });  
+    }
+    else{
+      meal = meals.find((meal)=>{ return meal.idMeal == idMeal });
+    }
+    
     
     setSelectedMeal(meal)
     setShowModal(true)
@@ -26,11 +44,18 @@ const AppProvider = ({ children }) => {
 
   const addToFavourites = (id) =>{
     let meal;
-    meal = meals.find((meal) => meal.idMeal === id);
     let alreadyFavourite = favourites.find((meal) => meal.idMeal === id)
     if(alreadyFavourite) return;
+    meal = meals.find((meal) => meal.idMeal === id);
     const updatedFavourites = [...favourites,meal]
     setFavourites(updatedFavourites);
+    localStorage.setItem('favorites',JSON.stringify(updatedFavourites))
+  }
+  const removeFromFavorites = (idMeal) =>{
+    const updateFavorites = favourites.filter((meal) => meal.idMeal !== idMeal);
+    setFavourites(updateFavorites);
+    localStorage.setItem('favorites',JSON.stringify(updateFavorites))
+
   }
 
   const closeModal = () => {
@@ -64,7 +89,7 @@ const AppProvider = ({ children }) => {
     fetchMeals(`${allMealUrl}${searchTerm}`);
   }, [searchTerm]);
   return (
-    <Appcontext.Provider value={{ meals, loading ,setSearchTerm ,fetchRandomMeal ,showModal , selecteMeal ,selectedMeal , closeModal ,addToFavourites ,favourites}}>
+    <Appcontext.Provider value={{ meals, loading ,setSearchTerm ,fetchRandomMeal ,showModal , selecteMeal ,selectedMeal , closeModal ,addToFavourites ,favourites ,removeFromFavorites}}>
       {children}
     </Appcontext.Provider>
   );

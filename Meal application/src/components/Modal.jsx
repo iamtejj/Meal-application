@@ -15,7 +15,7 @@ const Modal = () => {
             <p>Coocking Instruction</p>
             <p>{text}</p>
             <a href={source} target="_blank" >Original Source</a>
-            <button className="btn btn-hipster close-btn" onClick={() => { addToFavourites()}}>
+            <button className="btn btn-hipster close-btn" onClick={() => { closeModal()}}>
               close
             </button>
           </div>
